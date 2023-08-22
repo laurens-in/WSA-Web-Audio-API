@@ -31,7 +31,7 @@ Topics:
 4. Creating oscillators (maybe FM?) (Laurens)
 5. Connecting them to gain, ramping parameters, envelopes etc. (Laurens)
 6. Loading/playing samples (Becky)
-   1. with `Promise.all` multiple files can be loaded "in parallel" (as much as things in js can run parallel that is), see below.
+   1. with `Promise.all` multiple files can be loaded "in parallel" (as much as things in js can run parallel that is), see below + [here](https://anotherdev.xyz/promise-all-runs-in-parallel/)
 7. Scheduling (only briefly, too complicated for a short workshop) (Laurens)
    1. tale of two clocks brief explaination + maybe brief shoutout for zyklus
 8. AudioWorklet (Becky)
