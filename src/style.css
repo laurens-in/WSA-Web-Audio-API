@@ -30,7 +30,6 @@ body {
   /* place-items: center; */
   padding: 1.5em;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -70,9 +69,12 @@ h1 {
 .named-slider {
   display: flex;
   flex-direction: column;
+  gap: 5px;
   justify-content: center;
   align-items: center;
-  width: 100px;
+  width: 75px;
+  font-size: 0.75em;
+  color: #e94280;
   border: 1px solid #444444;
   padding: 1em;
   border-radius: 5px;
@@ -93,6 +95,14 @@ h1 {
   background-position: center center;
   background-repeat: no-repeat;
   cursor: pointer;
+}
+
+.slider-value {
+  padding: 0.25em;
+  border: 1px solid #e9427f94;
+  border-radius: 6px;
+  width: 60px;
+  text-align: center;
 }
 
 li {
@@ -121,7 +131,6 @@ button {
 input[type="range"][orient="vertical"] {
   -webkit-appearance: slider-vertical;
   width: 8px;
-  height: 175px;
   padding: 0 5px;
   border-radius: 5px;
 }
