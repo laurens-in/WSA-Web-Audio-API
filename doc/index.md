@@ -53,6 +53,8 @@ Useful links
 - https://github.com/orottier/web-audio-api-rs web audio outside the web
 - https://github.com/ircam-ismm/sc-scheduling ircam scheduler, wip
 - https://youtu.be/g1L4O1smMC0 video about worklets
+- https://github.com/WebAudio/web-audio-api/issues/1815 weird envelope behavior
+- https://github.com/WebAudio/web-audio-api/issues/573#issuecomment-151032325 this comment explains it i think, or at least i hope
 
 Fetching multiple files (not tested, but should work along these lines):
 

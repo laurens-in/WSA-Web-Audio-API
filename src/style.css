@@ -160,6 +160,46 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.section {
+  border: 1px solid lightslategray;
+  display: flex;
+  border-radius: 10px;
+  min-width: 75px;
+  min-height: 75px;
+  padding: 10px;
+}
+
+.sections {
+  border: 1px solid lightslategray;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  min-width: 75px;
+  min-height: 75px;
+  padding: 10px;
+}
+
+.section-name {
+  flex: 1;
+  font-weight: bold;
+  font-size: 2em;
+}
+
+#synth-frame {
+  display: flex;
+  gap: 10px;
+  max-width: 800px;
+  width: 90%;
+  margin: auto;
+}
+
+#synth-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
