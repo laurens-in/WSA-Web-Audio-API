@@ -8,7 +8,7 @@
  *
  * @param {string} name - The display name of the slider
  * @param {string} id - The unique ID of the slider
- * @param {changedCallback} cb - The callback which is called whenever a value changes
+ * @param {changedCallback} callback - The callback which is called whenever a value changes
  * @param {Object} [config] - The config object containing special configurations
  * @param {number} [config.min=0] - min value of the slider
  * @param {number} [config.max=100] - max value of the slider
@@ -18,7 +18,7 @@
  * @returns
  */
 
-export const createNamedSlider = (name, id, cb, config) => {
+export const createNamedSlider = (name, id, callback, config) => {
   const { min, max, step, initial, height } = {
     ...{ min: 0, max: 100, step: 1, initial: 0, height: 150 },
     ...config,
@@ -57,82 +57,186 @@ export const createNamedSlider = (name, id, cb, config) => {
   inputSlider.addEventListener("input", (e) => {
     const value = e.target.valueAsNumber;
     inputNumber.value = step < 1 ? value.toFixed(2) : value;
-    cb(value);
+    callback(value);
   });
 
   inputNumber.addEventListener("change", (e) => {
     const value = e.target.valueAsNumber;
     inputSlider.value = step < 1 ? value.toFixed(2) : value;
-    cb(value);
+    callback(value);
   });
 
-  cb(initial);
+  callback(initial);
 
   return template.content.firstElementChild;
 };
 
-// {
-//   carrier: {
-//     freq: 400,
-//     amp: 1,
-//   },
-//   modulator: {
-//     index: 1.75,
-//     amp: 300,
-//   },
-// },
-
-export const createFmVoice = (voice, id, ctx) => {
+export const createNamedPad = (name, id, callback, size = 40) => {
   const template = document.createElement("template");
-  template.innerHTML = `<div class="section">`;
+  template.innerHTML = `<div class="named-pad">
+      <button id="${id}-button" style="width: ${size}px; height: ${size}px;" class="pad"></button>
+      <label for="${id}">${name}</label>      
+    </div>`;
 
-  const text = document.createElement("template");
-  text.innerHTML = `<div class="section-name">Voice ${id}</div>`;
+  const padButton = template.content.firstElementChild.querySelector(
+    `#${id}-button`
+  );
 
-  const carrierFreq = createNamedSlider(
+  const togglePad = () => {
+    if (!padButton.classList.contains("pressed")) {
+      padButton.classList.toggle("pressed");
+      setTimeout(() => {
+        padButton.classList.toggle("pressed");
+      }, 100);
+    }
+  };
+
+  padButton.addEventListener("click", () => {
+    callback();
+    togglePad();
+  });
+
+  return [template.content.firstElementChild, togglePad];
+};
+
+export const createSection = (name) => {
+  const template = document.createElement("template");
+  template.innerHTML = `<div class="section"><div class="section-name">${name}</div><div class="section-content"></div></div>`;
+  return [
+    template.content.firstElementChild,
+    template.content.firstElementChild.lastElementChild,
+  ];
+};
+
+export const createFmVoiceSection = (voice, id, ctx) => {
+  const height = 100;
+  const [sectionParent, sectionContent] = createSection(`Voice ${id}`);
+
+  const freq = createNamedSlider(
     "Carrier Freq.",
     `carrier-freq-${id}`,
     (v) => {
-      voice.carrier.freq = v;
+      voice.freq = v;
       if (voice.refs)
-        voice.refs.oscillators[0].frequency.setValueAtTime(v, ctx.currentTime);
+        voice.refs.freq.frequency.setValueAtTime(v, ctx.currentTime);
     },
-    { min: 100, max: 1500, initial: 300 }
+    { min: 100, max: 1500, initial: 300, height }
   );
-  const carrierAmp = createNamedSlider(
+  const amp = createNamedSlider(
     "Carrier Amp.",
     `carrier-amp-${id}`,
     (v) => {
-      voice.carrier.amp = v;
+      voice.amp = v;
+      if (voice.refs) voice.refs.amp.gain.setValueAtTime(v, ctx.currentTime);
     },
-    { min: 0, max: 1, initial: 1, step: 0.01 }
+    { min: 0, max: 1, initial: 1, step: 0.01, height }
   );
-  const modulatorIndex = createNamedSlider(
+  const modIndex = createNamedSlider(
     "Mod. Index",
     `mod-index-${id}`,
     (v) => {
       voice.modulator.index = v;
       if (voice.refs)
-        voice.refs.oscillators[1].frequency.setValueAtTime(
-          v * voice.carrier.freq,
+        voice.refs.modulator.index.frequency.setValueAtTime(
+          v * voice.freq,
           ctx.currentTime
         );
     },
-    { min: 0.05, max: 3, initial: 1, step: 0.01 }
+    { min: 0.05, max: 2, initial: 0.5, step: 0.01, height }
   );
-  const modulatorAmp = createNamedSlider(
+  const modDepth = createNamedSlider(
     "Mod. Depth.",
     `mod-amp-${id}`,
-    (v) => (voice.modulator.depth = v * 500),
-    { min: 0, max: 1, step: 0.01 }
+    (v) => {
+      const depthMultiplied = v * 500;
+      voice.modulator.depth = depthMultiplied;
+      if (voice.refs)
+        voice.refs.modulator.depth.gain.setValueAtTime(
+          depthMultiplied,
+          ctx.currentTime
+        );
+    },
+    { min: 0, max: 1, step: 0.01, height }
   );
 
-  [
-    text.content.firstElementChild,
-    carrierFreq,
-    carrierAmp,
-    modulatorIndex,
-    modulatorAmp,
-  ].forEach((el) => template.content.firstElementChild.appendChild(el));
-  return template.content.firstElementChild;
+  [freq, amp, modIndex, modDepth].forEach((el) =>
+    sectionContent.appendChild(el)
+  );
+  return sectionParent;
+};
+
+export const createEnvelopeSection = (envelope) => {
+  const height = 100;
+  const [sectionParent, sectionContent] = createSection("Envelope");
+
+  const attack = createNamedSlider(
+    "Attack",
+    "attack-slider",
+    (v) => {
+      envelope.attack = v;
+    },
+    { min: 0.01, max: 0.5, step: 0.01, initial: 0.05, height }
+  );
+
+  const decay = createNamedSlider(
+    "Decay",
+    "decay-slider",
+    (v) => {
+      envelope.decay = v;
+    },
+    { min: 0.01, max: 0.5, step: 0.01, initial: 0.05, height }
+  );
+
+  const sustain = createNamedSlider(
+    "Sustain",
+    "sustain-slider",
+    (v) => {
+      envelope.sustain = v;
+    },
+    { min: 0, max: 1, step: 0.01, initial: 0.75, height }
+  );
+
+  const release = createNamedSlider(
+    "Release",
+    "release-slider",
+    (v) => {
+      envelope.release = v;
+    },
+    { min: 0.01, max: 2, step: 0.01, initial: 0.5, height }
+  );
+
+  [attack, decay, sustain, release].forEach((el) => {
+    sectionContent.appendChild(el);
+  });
+
+  return sectionParent;
+};
+
+export const createMasterSection = (masterGain, ctx) => {
+  const height = 100;
+  const [sectionParent, sectionContent] = createSection("Master");
+
+  const master = createNamedSlider(
+    "Master",
+    "master-slider",
+    (v) => masterGain.gain.linearRampToValueAtTime(v, ctx.currentTime + 0.02),
+    {
+      min: 0,
+      max: 1,
+      step: 0.01,
+      height,
+    }
+  );
+
+  sectionContent.appendChild(master);
+
+  return sectionParent;
+};
+
+export const createPadSection = (callbacks) => {
+  const [sectionParent, sectionContent] = createSection("Envelope");
+
+  callbacks.forEach((cb, i) => {
+    createNamedPad();
+  });
 };

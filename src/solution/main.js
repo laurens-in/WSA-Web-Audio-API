@@ -1,4 +1,10 @@
-import { createFmVoice, createNamedSlider } from "../util/ui";
+import {
+  createEnvelopeSection,
+  createFmVoiceSection,
+  createMasterSection,
+  createNamedPad,
+  createNamedSlider,
+} from "../util/ui";
 import kick from "../assets/sounds/kick.wav";
 import snare from "../assets/sounds/snare.wav";
 import hhOpen from "../assets/sounds/hh-open.wav";
@@ -12,41 +18,8 @@ masterGain.connect(ctx.destination);
 
 // add slider to ui
 const $master = document.querySelector("#synth-master");
-$master.appendChild(
-  createNamedSlider(
-    "Master",
-    "master-slider",
-    (v) => masterGain.gain.linearRampToValueAtTime(v, ctx.currentTime + 0.02),
-    {
-      min: 0,
-      max: 1,
-      step: 0.01,
-    }
-  )
-);
-
-// start with this
-// const fmSynth = {
-//   envelope: {
-//     attack: 0.1, // time
-//     decay: 0.3, // time
-//     sustain: 0.8, // level
-//     release: 0.2, // time
-//   },
-//   voices: [
-//     {
-//       carrier: {
-//         freq: 400,
-//         amp: 1,
-//       },
-//       modulator: {
-//         index: 1.2,
-//         amp: 100,
-//       },
-//       refs: undefined,
-//     },
-//   ],
-// };
+const masterSection = createMasterSection(masterGain, ctx);
+$master.appendChild(masterSection);
 
 // make a mental model of fmSynth
 const fmSynth = {
@@ -58,10 +31,8 @@ const fmSynth = {
   },
   voices: [
     {
-      carrier: {
-        freq: 300,
-        amp: 1,
-      },
+      freq: 300,
+      amp: 1,
       modulator: {
         index: 0.2,
         depth: 300,
@@ -69,34 +40,28 @@ const fmSynth = {
       refs: undefined,
     },
     {
-      carrier: {
-        freq: 400,
-        amp: 1,
-      },
+      freq: 300,
+      amp: 1,
       modulator: {
-        index: 1.75,
+        index: 0.2,
         depth: 300,
       },
       refs: undefined,
     },
     {
-      carrier: {
-        freq: 600,
-        amp: 1,
-      },
+      freq: 300,
+      amp: 1,
       modulator: {
-        index: 0.5,
-        depth: 250,
+        index: 0.2,
+        depth: 300,
       },
       refs: undefined,
     },
     {
-      carrier: {
-        freq: 200,
-        amp: 1,
-      },
+      freq: 300,
+      amp: 1,
       modulator: {
-        index: 2.6,
+        index: 0.2,
         depth: 300,
       },
       refs: undefined,
@@ -104,170 +69,96 @@ const fmSynth = {
   ],
 };
 
-const $envelope = document.querySelector("#synth-env");
-$envelope.appendChild(
-  createNamedSlider(
-    "Attack",
-    "attack-slider",
-    (v) => {
-      fmSynth.envelope.attack = v;
-    },
-    { min: 0, max: 0.5, step: 0.01, initial: 0.05, height: 75 }
-  )
-);
-$envelope.appendChild(
-  createNamedSlider(
-    "Decay",
-    "decay-slider",
-    (v) => {
-      fmSynth.envelope.decay = v;
-    },
-    { min: 0, max: 0.5, step: 0.01, initial: 0.05, height: 75 }
-  )
-);
-$envelope.appendChild(
-  createNamedSlider(
-    "Sustain",
-    "sustain-slider",
-    (v) => {
-      fmSynth.envelope.sustain = v;
-    },
-    { min: 0, max: 1, step: 0.01, initial: 0.75, height: 75 }
-  )
-);
+const $envelopeContainer = document.querySelector("#synth-env");
+const envelopeSection = createEnvelopeSection(fmSynth.envelope);
+$envelopeContainer.appendChild(envelopeSection);
 
-$envelope.appendChild(
-  createNamedSlider(
-    "Release",
-    "release-slider",
-    (v) => {
-      fmSynth.envelope.release = v;
-    },
-    { min: 0, max: 2, step: 0.01, initial: 0.5, height: 75 }
-  )
+const $drumContainer = document.querySelector("#synth-drum");
+const padSection = createNamedPad("Kick", "kick", () => console.log("hi"));
+$drumContainer.appendChild(padSection[0]);
+
+const $fmContainer = document.querySelector("#fm-section");
+const voiceSections = fmSynth.voices.map((v, i) =>
+  createFmVoiceSection(v, i, ctx)
 );
+voiceSections.forEach((el) => $fmContainer.appendChild(el));
 
-const fmContainer = document.querySelector("#synth-fm");
-const voice = createFmVoice(fmSynth.voices[0], 1, ctx);
-fmContainer.appendChild(voice);
-
-const playFmVoice = (voice, envelope, ctx) => {
+const playFmVoice = (voice, env, ctx) => {
   // create nodes
   const carrier = ctx.createOscillator();
+  const amplitude = ctx.createGain();
   const modulator = ctx.createOscillator();
   const modAmp = ctx.createGain();
-  const env = createEnvelope(envelope, ctx);
+  const envelope = createEnvelope(env, ctx);
   // set values
-  carrier.frequency.setValueAtTime(voice.carrier.freq, ctx.currentTime);
+  carrier.frequency.setValueAtTime(voice.freq, ctx.currentTime);
   modulator.frequency.setValueAtTime(
-    voice.modulator.index * voice.carrier.freq,
+    voice.modulator.index * voice.freq,
     ctx.currentTime
   );
+  amplitude.gain.setValueAtTime(voice.amp, ctx.currentTime);
   modAmp.gain.setValueAtTime(voice.modulator.depth, ctx.currentTime);
-  // connect
+  // wire everything up
   modulator.connect(modAmp);
   modAmp.connect(carrier.detune);
-  carrier.connect(env);
-  env.connect(masterGain);
+  carrier.connect(envelope);
+  envelope.connect(amplitude);
+  amplitude.connect(masterGain);
   carrier.start(ctx.currentTime);
   modulator.start(ctx.currentTime);
-  return [carrier, modulator, env];
+  return {
+    freq: carrier,
+    amp: amplitude,
+    modulator: { index: modulator, depth: modAmp },
+    env: envelope,
+    dirty: true,
+  };
 };
 
-const stopFmVoice = (refs, envelope, ctx) => {
-  const release = ctx.currentTime + envelope.release;
+const stopFmVoice = (voice, env, ctx) => {
+  const release = ctx.currentTime + env.release;
+  // we need this to avoid clicks, but we shouldn't
   const buffer = 0.05;
-  refs.env.gain.linearRampToValueAtTime(
-    envelope.sustain,
+  voice.refs.env.gain.linearRampToValueAtTime(
+    env.sustain,
     ctx.currentTime + buffer
   );
-  refs.env.gain.linearRampToValueAtTime(0, release + buffer);
-  refs.oscillators.forEach((v) => v.stop(release + buffer));
+  voice.refs.env.gain.linearRampToValueAtTime(0, release + buffer);
+  voice.refs.freq.stop(release + buffer);
+  voice.refs.modulator.index.stop(release + buffer);
+  return null;
 };
 
-// This can fail (i think) when sustain is release is triggered before decay, then weird shit happens, it works fine with short attacks
-const createEnvelope = (envelope, ctx) => {
-  const env = ctx.createGain();
+// ramps that are triggered while other ramps are still going are appended to the queue, it still sometimes breaks
+const createEnvelope = (env, ctx) => {
+  const envelope = ctx.createGain();
   // attack
-  env.gain.setValueAtTime(0, ctx.currentTime);
-  env.gain.linearRampToValueAtTime(0.95, ctx.currentTime + envelope.attack);
+  envelope.gain.setValueAtTime(0, ctx.currentTime);
+  envelope.gain.linearRampToValueAtTime(0.95, ctx.currentTime + env.attack);
   // decay
-  env.gain.linearRampToValueAtTime(
-    envelope.sustain,
-    ctx.currentTime + envelope.attack + envelope.decay
+  envelope.gain.linearRampToValueAtTime(
+    env.sustain,
+    ctx.currentTime + env.attack + env.decay
   );
-  return env;
+  return envelope;
 };
-
-// start with this!
-// const initializeKeyboard = () => {
-//   document.addEventListener("keypress", (e) => {
-//     if (e.key === "a" && !fmSynth.voices[0].refs) {
-//       fmSynth.voices[0].refs = playFmVoice(fmSynth.voices[0], {}, ctx);
-//     }
-//   });
-
-//   document.addEventListener("keyup", (e) => {
-//     if (e.key === "a" && fmSynth.voices[0].refs) {
-//       fmSynth.voices[0].refs.forEach((v) => v.stop());
-//       fmSynth.voices[0].refs = undefined;
-//     }
-//   });
-// };
 
 const initializeKeyboard = () => {
-  const keys = ["a", "s", "d", "f"];
-  document.addEventListener("keydown", (e) => {
-    keys.forEach((k, i) => {
-      const voice = fmSynth.voices[i];
-
-      if (e.key === k && !fmSynth.voices[i].refs) {
-        const [carrier, modulator, envelope] = playFmVoice(
-          voice,
-          fmSynth.envelope,
-          ctx
-        );
-
-        // this doesn't work because it will instantly stop on keyup we need to debounce
-        // refs[k] = { oscillators: [carrier, modulator], env: envelope })
-
-        // setTimeout(
-        //   () =>
-        //     (refs[k] = { oscillators: [carrier, modulator], env: envelope }),
-        //   50
-        // );
-
-        fmSynth.voices[i].refs = {
-          oscillators: [carrier, modulator],
-          env: envelope,
-          dirty: true,
-        };
+  const keysFM = ["a", "s", "d", "f"];
+  keysFM.forEach((k, i) => {
+    const voice = fmSynth.voices[i];
+    document.addEventListener("keydown", (e) => {
+      if (e.key === k && !voice.refs) {
+        voice.refs = playFmVoice(voice, fmSynth.envelope, ctx);
       }
 
-      if (e.key === k && fmSynth.voices[i].refs.dirty === false) {
-        stopFmVoice(fmSynth.voices[i].refs, fmSynth.envelope, ctx);
-        fmSynth.voices[i].refs = undefined;
+      if (e.key === k && voice.refs.dirty === false) {
+        voice.refs = stopFmVoice(voice, fmSynth.envelope, ctx);
       }
     });
-  });
-
-  // like this it's not possible to change values whlie playing since mouse is blocked
-  // document.addEventListener("keyup", (e) => {
-  //   keys.forEach((k, i) => {
-  //     if (e.key === k && refs[k]) {
-  //       stopFmVoice(refs[k], fmSynth.envelope, ctx);
-  //       refs[k] = undefined;
-  //     }
-  //   });
-  // });
-  document.addEventListener("keyup", (e) => {
-    keys.forEach((k, i) => {
-      if (
-        e.key === k &&
-        fmSynth.voices[i].refs &&
-        fmSynth.voices[i].refs.dirty
-      ) {
-        fmSynth.voices[i].refs.dirty = false;
+    document.addEventListener("keyup", (e) => {
+      if (e.key === k && voice.refs && voice.refs.dirty) {
+        voice.refs.dirty = false;
       }
     });
   });

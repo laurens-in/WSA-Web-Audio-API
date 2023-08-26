@@ -72,11 +72,11 @@ h1 {
   gap: 5px;
   justify-content: center;
   align-items: center;
-  width: 75px;
+  width: 70px;
   font-size: 0.75em;
   color: #e94280;
-  border: 1px solid #444444;
-  padding: 1em;
+  border: 1px solid #44444474;
+  padding: 0.5em;
   border-radius: 5px;
 }
 
@@ -163,34 +163,46 @@ button:focus-visible {
 .section {
   border: 1px solid lightslategray;
   display: flex;
+  flex-direction: column;
+  gap: 5px;
   border-radius: 10px;
-  min-width: 75px;
-  min-height: 75px;
+  width: fit-content;
+  height: fit-content;
   padding: 10px;
 }
 
-.sections {
-  border: 1px solid lightslategray;
+.section-content {
   display: flex;
-  flex-direction: column;
+  gap: 5px;
+}
+
+#fm-section {
+  border: 1px solid lightslategray;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   border-radius: 10px;
-  min-width: 75px;
-  min-height: 75px;
+  width: fit-content;
+  gap: 10px;
   padding: 10px;
 }
 
 .section-name {
   flex: 1;
-  font-weight: bold;
-  font-size: 2em;
+  font-weight: light;
+  font-size: 0.8em;
 }
 
 #synth-frame {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  max-width: 800px;
-  width: 90%;
+  max-width: 1000px;
+  padding: 10px;
+  /* width: 90%; */
+  width: fit-content;
   margin: auto;
+  border: 1px solid rgb(84, 18, 18);
+  border-radius: 10px;
 }
 
 #synth-sections {
@@ -198,6 +210,20 @@ button:focus-visible {
   flex-direction: column;
   gap: 10px;
   flex: 1;
+}
+
+#top-section {
+  display: flex;
+}
+
+.pad {
+  border: 1px solid ghostwhite;
+  border-radius: 10px;
+  background-color: darkslategrey;
+}
+
+.pad.pressed {
+  background-color: darkorange;
 }
 
 @media (prefers-color-scheme: light) {
