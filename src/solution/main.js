@@ -95,7 +95,7 @@ const [padSection, padRefs] = createPadSection([
     },
   },
   {
-    name: "Open Hat",
+    name: "Ride",
     callback: () => {
       playBuffer(instrument.buffers.ride, masterGain, ctx);
     },
