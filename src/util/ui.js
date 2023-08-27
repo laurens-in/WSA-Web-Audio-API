@@ -96,12 +96,12 @@ export const createNamedPad = (name, id, callback, size = 40) => {
     togglePad();
   });
 
-  return [template.content.firstElementChild, togglePad];
+  return template.content.firstElementChild;
 };
 
-export const createSection = (name) => {
+export const createSection = (name, layout) => {
   const template = document.createElement("template");
-  template.innerHTML = `<div class="section"><div class="section-name">${name}</div><div class="section-content"></div></div>`;
+  template.innerHTML = `<div class="section"><div class="section-name">${name}</div><div class="section-content-${layout}"></div></div>`;
   return [
     template.content.firstElementChild,
     template.content.firstElementChild.lastElementChild,
@@ -110,7 +110,7 @@ export const createSection = (name) => {
 
 export const createFmVoiceSection = (voice, id, ctx) => {
   const height = 100;
-  const [sectionParent, sectionContent] = createSection(`Voice ${id}`);
+  const [sectionParent, sectionContent] = createSection(`Voice ${id}`, "row");
 
   const freq = createNamedSlider(
     "Carrier Freq.",
@@ -167,7 +167,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
 
 export const createEnvelopeSection = (envelope) => {
   const height = 100;
-  const [sectionParent, sectionContent] = createSection("Envelope");
+  const [sectionParent, sectionContent] = createSection("Envelope", "row");
 
   const attack = createNamedSlider(
     "Attack",
@@ -214,7 +214,7 @@ export const createEnvelopeSection = (envelope) => {
 
 export const createMasterSection = (masterGain, ctx) => {
   const height = 100;
-  const [sectionParent, sectionContent] = createSection("Master");
+  const [sectionParent, sectionContent] = createSection("Master", "row");
 
   const master = createNamedSlider(
     "Master",
@@ -233,10 +233,18 @@ export const createMasterSection = (masterGain, ctx) => {
   return sectionParent;
 };
 
-export const createPadSection = (callbacks) => {
-  const [sectionParent, sectionContent] = createSection("Envelope");
+export const createPadSection = (padConfigs) => {
+  const [sectionParent, sectionContent] = createSection("Drum Pad", "grid");
 
-  callbacks.forEach((cb, i) => {
-    createNamedPad();
+  const pads = padConfigs.map((config, i) =>
+    createNamedPad(config.name, `pad-button-${i}`, config.callback)
+  );
+
+  pads.forEach((el) => {
+    sectionContent.appendChild(el);
   });
+
+  const buttons = pads.map((el) => el.firstElementChild);
+
+  return [sectionParent, buttons];
 };

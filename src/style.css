@@ -73,11 +73,14 @@ h1 {
   justify-content: center;
   align-items: center;
   width: 70px;
-  font-size: 0.75em;
-  color: #e94280;
   border: 1px solid #44444474;
   padding: 0.5em;
   border-radius: 5px;
+}
+
+label {
+  font-size: 0.75em;
+  color: #e94280;
 }
 
 .slider::-moz-range-track {
@@ -171,9 +174,17 @@ button:focus-visible {
   padding: 10px;
 }
 
-.section-content {
+.section-content-row {
   display: flex;
   gap: 5px;
+  flex: 1;
+}
+
+.section-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  flex: 1;
 }
 
 #fm-section {
@@ -186,8 +197,18 @@ button:focus-visible {
   padding: 10px;
 }
 
+#pad-section {
+  border: 1px solid lightslategray;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 10px;
+  width: fit-content;
+  gap: 10px;
+  padding: 10px;
+  height: 100%;
+}
+
 .section-name {
-  flex: 1;
   font-weight: light;
   font-size: 0.8em;
 }
@@ -224,6 +245,14 @@ button:focus-visible {
 
 .pad.pressed {
   background-color: darkorange;
+}
+
+.named-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (prefers-color-scheme: light) {

@@ -2,16 +2,17 @@ import {
   createEnvelopeSection,
   createFmVoiceSection,
   createMasterSection,
-  createNamedPad,
-  createNamedSlider,
+  createPadSection,
 } from "../util/ui";
 import kick from "../assets/sounds/kick.wav";
 import snare from "../assets/sounds/snare.wav";
-import hhOpen from "../assets/sounds/hh-open.wav";
-import hhClosed from "../assets/sounds/hh-closed.wav";
+import openHat from "../assets/sounds/hh-open.wav";
+import closedHat from "../assets/sounds/hh-closed.wav";
 
 const ctx = new AudioContext();
 document.addEventListener("click", () => ctx.resume());
+
+// create a master gain
 const masterGain = ctx.createGain();
 // connect master gain to output
 masterGain.connect(ctx.destination);
@@ -22,7 +23,7 @@ const masterSection = createMasterSection(masterGain, ctx);
 $master.appendChild(masterSection);
 
 // make a mental model of fmSynth
-const fmSynth = {
+const instrument = {
   envelope: {
     attack: 0.05, // time
     decay: 0.1, // time
@@ -67,18 +68,49 @@ const fmSynth = {
       refs: undefined,
     },
   ],
+  buffers: {
+    kick: undefined,
+    snare: undefined,
+    openHat: undefined,
+    closedHat: undefined,
+  },
 };
 
 const $envelopeContainer = document.querySelector("#synth-env");
-const envelopeSection = createEnvelopeSection(fmSynth.envelope);
+const envelopeSection = createEnvelopeSection(instrument.envelope);
 $envelopeContainer.appendChild(envelopeSection);
 
 const $drumContainer = document.querySelector("#synth-drum");
-const padSection = createNamedPad("Kick", "kick", () => console.log("hi"));
-$drumContainer.appendChild(padSection[0]);
+const [padSection, padRefs] = createPadSection([
+  {
+    name: "Kick",
+    callback: () => {
+      playBuffer(instrument.buffers.kick, masterGain, ctx);
+    },
+  },
+  {
+    name: "Snare",
+    callback: () => {
+      playBuffer(instrument.buffers.snare, masterGain, ctx);
+    },
+  },
+  {
+    name: "Open Hat",
+    callback: () => {
+      playBuffer(instrument.buffers.openHat, masterGain, ctx);
+    },
+  },
+  {
+    name: "Closed Hat",
+    callback: () => {
+      playBuffer(instrument.buffers.closedHat, masterGain, ctx);
+    },
+  },
+]);
+$drumContainer.appendChild(padSection);
 
 const $fmContainer = document.querySelector("#fm-section");
-const voiceSections = fmSynth.voices.map((v, i) =>
+const voiceSections = instrument.voices.map((v, i) =>
   createFmVoiceSection(v, i, ctx)
 );
 voiceSections.forEach((el) => $fmContainer.appendChild(el));
@@ -143,17 +175,24 @@ const createEnvelope = (env, ctx) => {
   return envelope;
 };
 
+const playBuffer = (buffer, destination, ctx) => {
+  const track = ctx.createBufferSource();
+  track.buffer = buffer;
+  track.connect(destination);
+  track.start(ctx.currentTime);
+};
+
 const initializeKeyboard = () => {
   const keysFM = ["a", "s", "d", "f"];
   keysFM.forEach((k, i) => {
-    const voice = fmSynth.voices[i];
+    const voice = instrument.voices[i];
     document.addEventListener("keydown", (e) => {
       if (e.key === k && !voice.refs) {
-        voice.refs = playFmVoice(voice, fmSynth.envelope, ctx);
+        voice.refs = playFmVoice(voice, instrument.envelope, ctx);
       }
 
       if (e.key === k && voice.refs.dirty === false) {
-        voice.refs = stopFmVoice(voice, fmSynth.envelope, ctx);
+        voice.refs = stopFmVoice(voice, instrument.envelope, ctx);
       }
     });
     document.addEventListener("keyup", (e) => {
@@ -162,12 +201,21 @@ const initializeKeyboard = () => {
       }
     });
   });
+
+  const drumKeys = ["v", "b", "n", "m"];
+  drumKeys.forEach((k, i) => {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === k) {
+        padRefs[i].click();
+      }
+    });
+  });
 };
 
 initializeKeyboard();
 
 // drum
-const paths = [kick, snare, hhClosed, hhOpen];
+const paths = [kick, snare, openHat, closedHat];
 
 // create a bunch of promises
 const sounds = paths.map((sound) =>
@@ -176,13 +224,11 @@ const sounds = paths.map((sound) =>
     .then((buffer) => ctx.decodeAudioData(buffer))
 );
 
-// wait for promises to resolve and get the buffers
 Promise.all(sounds).then((buffers) => {
-  buffers.forEach((buffer, i) => {
-    console.log(buffer);
-    let track = ctx.createBufferSource();
-    track.buffer = buffer;
-    track.connect(ctx.destination);
-    track.start(ctx.currentTime + i);
-  });
+  instrument.buffers = {
+    kick: buffers[0],
+    snare: buffers[1],
+    openHat: buffers[2],
+    closedHat: buffers[3],
+  };
 });
