@@ -6,8 +6,8 @@ import {
 } from "../util/ui";
 import kick from "../assets/sounds/kick.wav";
 import snare from "../assets/sounds/snare.wav";
-import openHat from "../assets/sounds/hh-open.wav";
-import closedHat from "../assets/sounds/hh-closed.wav";
+import ride from "../assets/sounds/ride.wav";
+import closedHat from "../assets/sounds/closedHat.wav";
 
 const ctx = new AudioContext();
 document.addEventListener("click", () => ctx.resume());
@@ -71,7 +71,7 @@ const instrument = {
   buffers: {
     kick: undefined,
     snare: undefined,
-    openHat: undefined,
+    ride: undefined,
     closedHat: undefined,
   },
 };
@@ -97,7 +97,7 @@ const [padSection, padRefs] = createPadSection([
   {
     name: "Open Hat",
     callback: () => {
-      playBuffer(instrument.buffers.openHat, masterGain, ctx);
+      playBuffer(instrument.buffers.ride, masterGain, ctx);
     },
   },
   {
@@ -215,7 +215,7 @@ const initializeKeyboard = () => {
 initializeKeyboard();
 
 // drum
-const paths = [kick, snare, openHat, closedHat];
+const paths = [kick, snare, ride, closedHat];
 
 // create a bunch of promises
 const sounds = paths.map((sound) =>
@@ -228,7 +228,7 @@ Promise.all(sounds).then((buffers) => {
   instrument.buffers = {
     kick: buffers[0],
     snare: buffers[1],
-    openHat: buffers[2],
+    ride: buffers[2],
     closedHat: buffers[3],
   };
 });
