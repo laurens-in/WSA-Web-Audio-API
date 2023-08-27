@@ -33,37 +33,37 @@ const instrument = {
   voices: [
     {
       freq: 300,
-      amp: 1,
+      amp: 0.5,
       modulator: {
-        index: 0.2,
-        depth: 300,
+        index: 0.5,
+        depth: 1,
+      },
+      refs: undefined,
+    },
+    {
+      freq: 330,
+      amp: 0.5,
+      modulator: {
+        index: 0.125,
+        depth: 0.6,
       },
       refs: undefined,
     },
     {
       freq: 300,
-      amp: 1,
+      amp: 0.5,
       modulator: {
         index: 0.2,
-        depth: 300,
+        depth: 0.7,
       },
       refs: undefined,
     },
     {
-      freq: 300,
-      amp: 1,
+      freq: 270,
+      amp: 0.5,
       modulator: {
-        index: 0.2,
-        depth: 300,
-      },
-      refs: undefined,
-    },
-    {
-      freq: 300,
-      amp: 1,
-      modulator: {
-        index: 0.2,
-        depth: 300,
+        index: 0.66,
+        depth: 0.9,
       },
       refs: undefined,
     },

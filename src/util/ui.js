@@ -176,7 +176,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
       if (voice.refs)
         voice.refs.freq.frequency.setValueAtTime(v, ctx.currentTime);
     },
-    { min: 100, max: 1500, initial: 300, height }
+    { min: 100, max: 1500, initial: voice.freq, height }
   );
   const amp = createNamedSlider(
     "Carrier Amp.",
@@ -185,7 +185,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
       voice.amp = v;
       if (voice.refs) voice.refs.amp.gain.setValueAtTime(v, ctx.currentTime);
     },
-    { min: 0, max: 1, initial: 1, step: 0.01, height }
+    { min: 0, max: 1, initial: voice.amp, step: 0.01, height }
   );
   const modIndex = createNamedSlider(
     "Mod. Index",
@@ -198,7 +198,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
           ctx.currentTime
         );
     },
-    { min: 0.05, max: 2, initial: 0.5, step: 0.01, height }
+    { min: 0.05, max: 2, initial: voice.modulator.index, step: 0.01, height }
   );
   const modDepth = createNamedSlider(
     "Mod. Depth.",
@@ -212,7 +212,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
           ctx.currentTime
         );
     },
-    { min: 0, max: 1, step: 0.01, height }
+    { min: 0, max: 1, initial: voice.modulator.depth, step: 0.01, height }
   );
 
   [freq, amp, modIndex, modDepth].forEach((el) =>
