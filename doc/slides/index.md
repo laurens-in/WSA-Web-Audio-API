@@ -16,9 +16,9 @@
 
 ### What is an API?
 
-* stands for **Application Programming Interface.**
-* abstracts a complex problem (i.e., doing 3D graphics, network programming, etc) into simple-to-use functions
-* generally accessed through a parent object that groups all functions for a single API
+- stands for **Application Programming Interface.**
+- abstracts a complex problem (i.e., doing 3D graphics, network programming, etc) into simple-to-use functions
+- generally accessed through a parent object that groups all functions for a single API
 
 ---
 
@@ -32,11 +32,11 @@
 
 ### Browser API examples
 
-* DOM API (essential: manipulate page contents!)
-* Fetch API (make requests for fetching external data)
-* Canvas and WebGL APIs (2D/3D drawing)
-* History API (move back/forward in user's browser history)
-* Intersection Observer API (when x element is at center of screen, do y)
+- DOM API (essential: manipulate page contents!)
+- Fetch API (make requests for fetching external data)
+- Canvas and WebGL APIs (2D/3D drawing)
+- History API (move back/forward in user's browser history)
+- Intersection Observer API (when x element is at center of screen, do y)
 
 Full list available at: [https://developer.mozilla.org/en-US/docs/Web/API](https://developer.mozilla.org/en-US/docs/Web/API)
 
@@ -44,10 +44,10 @@ Full list available at: [https://developer.mozilla.org/en-US/docs/Web/API](https
 
 ### Third-party API examples
 
-* Underscore.js
-* axios.js
-* p5.js + three.js
-* scrollama.js
+- Underscore.js
+- axios.js
+- p5.js + three.js
+- scrollama.js
 
 ---
 
@@ -65,27 +65,31 @@ The Web Audio API is a **browser API** for playing and manipulating audio, which
 
 ### Why should we care?
 
-* The WAAPI is a **browser API**, meaning browsers will continue to support it as long as it continues to be in the W3C spec.
-* **Third-party APIs**, like Tone.js remain only if their (often solo) developer has time to maintain it.
+- The WAAPI is a **browser API**, meaning browsers will continue to support it as long as it continues to be in the W3C spec.
+- **Third-party APIs**, like Tone.js remain only if their (often solo) developer has time to maintain it.
 
 ---
 
 ### Why should we care?
 
-* If there's something not available to you in Tone.js, p5.sound, etc., these libraries include a way to add WAAPI functionality via custom nodes.
-* The WAAPI has a lot of strange quirks, which are easier to find through the API directly than on third-party libraries built on top of it.
+- If there's something not available to you in Tone.js, p5.sound, etc., these libraries include a way to add WAAPI functionality via custom nodes.
+- The WAAPI has a lot of strange quirks, which are easier to find through the API directly than on third-party libraries built on top of it.
+
+---
+
+### Coding
 
 ---
 
 ### Strange quirks?
 
-* node limitations
-* time accuracy
-* memory allocation
-* no interactions with SpeechSynthesis
+- node limitations
+- time accuracy
+- memory allocation
+- no interactions with SpeechSynthesis
 
 [I don't know who the Web Audio API is designed for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
 
 ---
 
-### Introduction To The Web Audio API
+### Notes on scheduling

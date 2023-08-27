@@ -10,7 +10,11 @@ The Web Audio API is the low-level API for audio processing in the browser. This
 
 Continue:
 
-- same time and date, same link https://virginia.zoom.us/wc/7145470413
+- Make it work with live-server (Becky)
+- Create start folder that will be used during workshop (Laurens)
+- Figure out how to share audio in the workshop (Laurens)
+- Work on slides (Becky)
+- Create an AudioWorklet (Laurens)
 
 Frame:
 
@@ -30,7 +34,7 @@ Topics:
    4. does not support some things we would expect from an audio framework (i.e. frequency domain processing)
 4. Creating oscillators (maybe FM?) (Laurens)
 5. Connecting them to gain, ramping parameters, envelopes etc. (Laurens)
-6. Loading/playing samples (Becky)
+6. Loading/playing samples (Laurens)
    1. with `Promise.all` multiple files can be loaded "in parallel" (as much as things in js can run parallel that is), see below + [here](https://anotherdev.xyz/promise-all-runs-in-parallel/)
 7. Scheduling (only briefly, too complicated for a short workshop) (Laurens)
    1. tale of two clocks brief explaination + maybe brief shoutout for zyklus
@@ -53,24 +57,3 @@ Useful links
 - https://github.com/orottier/web-audio-api-rs web audio outside the web
 - https://github.com/ircam-ismm/sc-scheduling ircam scheduler, wip
 - https://youtu.be/g1L4O1smMC0 video about worklets
-
-Fetching multiple files (not tested, but should work along these lines):
-
-```js
-let sounds = [pathA, pathB, pathC];
-
-const ctx = new window.AudioContext();
-sounds.forEach((sound) =>
-  fetch(sound)
-    .then((response) => response.arrayBuffer())
-    .then((buffer) => ctx.decodeAudioData(buffer))
-);
-Promise.all(sounds).then((buffers) => {
-  buffers.foreEach((b) => {
-    let track = ctx.createBufferSource();
-    track.buffer = buffer;
-    track.connect(ctx.destination);
-    track.start(ctx.currentTime);
-  });
-});
-```
