@@ -1,21 +1,21 @@
 /**
  *
- * @callback changedCallback
- * @param {number} value
+ * @callback eventCallback
+ * @param {number} [value]
  */
 
 /**
  *
  * @param {string} name - The display name of the slider
  * @param {string} id - The unique ID of the slider
- * @param {changedCallback} callback - The callback which is called whenever a value changes
+ * @param {eventCallback} callback - The eventListener callback
  * @param {Object} [config] - The config object containing special configurations
  * @param {number} [config.min=0] - min value of the slider
  * @param {number} [config.max=100] - max value of the slider
  * @param {number} [config.step=1] - step value of the slider
  * @param {number} [config.initial=0] - initial value of the slider
  * @param {number} [config.height=150] - height of the slider in pixels
- * @returns
+ * @returns {Element} - The slider element
  */
 
 export const createNamedSlider = (name, id, callback, config) => {
@@ -71,6 +71,15 @@ export const createNamedSlider = (name, id, callback, config) => {
   return template.content.firstElementChild;
 };
 
+/**
+ *
+ * @param {string} name - The display name of the pad
+ * @param {string} id - The unique id of the pad
+ * @param {eventCallback} callback - The eventListener callback
+ * @param {number} [size] - The size of the pad in pixels
+ * @returns {Element} - The pad element
+ */
+
 export const createNamedPad = (name, id, callback, size = 40) => {
   const template = document.createElement("template");
   template.innerHTML = `<div class="named-pad">
@@ -99,6 +108,13 @@ export const createNamedPad = (name, id, callback, size = 40) => {
   return template.content.firstElementChild;
 };
 
+/**
+ *
+ * @param {string} name - Display name of the section
+ * @param {"row"|"grid"} layout - The type of layout, "row" or "grid"
+ * @returns {[Element, Element]} Returns the parent element and the content element
+ */
+
 export const createSection = (name, layout) => {
   const template = document.createElement("template");
   template.innerHTML = `<div class="section"><div class="section-name">${name}</div><div class="section-content-${layout}"></div></div>`;
@@ -107,6 +123,46 @@ export const createSection = (name, layout) => {
     template.content.firstElementChild.lastElementChild,
   ];
 };
+
+/**
+ * The FmVoice config object.
+ * @typedef {Object} FmVoiceConfig
+ * @property {number} freq - Indicates whether the Courage component is present.
+ * @property {number} amp - Indicates whether the Power component is present.
+ * @property {FmModConfig} modulator - Indicates whether the Wisdom component is present.
+ * @property {FmVoiceRefs} refs - Contains the references to the playing nodes.
+ */
+
+/**
+ * The FmMod config object.
+ * @typedef {Object} FmModConfig
+ * @property {number} index - Indicates whether the Courage component is present.
+ * @property {number} depth - Indicates whether the Power component is present.
+ */
+
+/**
+ * The FmVoice refs object, holds references to playing nodes.
+ * @typedef {Object} FmVoiceRefs
+ * @property {OscillatorNode} freq - The carrier OscillatorNode.
+ * @property {GainNode} amp - The carrier GainNode.
+ * @property {FmModRefs} modulator - The refs for the modulators nodes.
+ * @property {GainNode} env - The envelopes GainNode.
+ * @property {boolean} dirty - Dirty flag.
+ */
+
+/**
+ * The FmMod refs object, holds refrences to playing nodes.
+ * @typedef {Object} FmModRefs
+ * @property {OscillatorNode} index - The modulator OscillatorNode.
+ * @property {GainNode} depth - The modulator GainNode.
+ */
+
+/**
+ * @param {FmVoiceConfig} voice - The FmVoice config options.
+ * @param {string} id - The unique id of the section.
+ * @param {AudioContext} ctx - The audio context.
+ * @returns {Element} The sections root element.
+ */
 
 export const createFmVoiceSection = (voice, id, ctx) => {
   const height = 100;
@@ -165,6 +221,21 @@ export const createFmVoiceSection = (voice, id, ctx) => {
   return sectionParent;
 };
 
+/**
+ * The config for an envelope
+ * @typedef {Object} EnvelopeConfig
+ * @property {number} attack - the envelopes attack
+ * @property {number} decay - the envelopes attack
+ * @property {number} sustain - the envelopes attack
+ * @property {number} release - the envelopes attack
+ */
+
+/**
+ * Creates an envelope section with sliders for Attack, Decay, Sustain, Release
+ * @param {EnvelopeConfig} envelope - The config of the envelope
+ * @returns {Element} The sections root element.
+ */
+
 export const createEnvelopeSection = (envelope) => {
   const height = 100;
   const [sectionParent, sectionContent] = createSection("Envelope", "row");
@@ -212,6 +283,13 @@ export const createEnvelopeSection = (envelope) => {
   return sectionParent;
 };
 
+/**
+ *
+ * @param {GainNode} masterGain - The master gain node.
+ * @param {AudioContext} ctx - The reference to the AudioContext.
+ * @returns {Element} The sections root element.
+ */
+
 export const createMasterSection = (masterGain, ctx) => {
   const height = 100;
   const [sectionParent, sectionContent] = createSection("Master", "row");
@@ -232,6 +310,19 @@ export const createMasterSection = (masterGain, ctx) => {
 
   return sectionParent;
 };
+
+/**
+ * Config object for a pad.
+ * @typedef {Object} PadConfig
+ * @property {string} name - The pads display name.
+ * @property {eventCallback} callback - The callback if the pad is pressed.
+ */
+
+/**
+ * Create a section with drum pads.
+ * @param {PadConfig[]} padConfigs
+ * @returns {Element} The sections root element.
+ */
 
 export const createPadSection = (padConfigs) => {
   const [sectionParent, sectionContent] = createSection("Drum Pad", "grid");
