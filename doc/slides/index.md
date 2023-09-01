@@ -77,15 +77,24 @@ The Web Audio API is a **browser API** for playing and manipulating audio, which
 
 ---
 
-### Coding
+### Basics: audio routing graph
+
+![[threads.png]]
+   2. has a-rate & k-rate
+   3. sample accurate scheduling but fire & forget
+   4. does not support some things we would expect from an audio framework (i.e. frequency domain processing)
 
 ---
 
-### Strange quirks?
+## Coding
+
+---
+
+### Strange quirks
 
 - node limitations
 - time accuracy
-- memory allocation
+- memory allocation + garbage collection
 - no interactions with SpeechSynthesis
 
 [I don't know who the Web Audio API is designed for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
