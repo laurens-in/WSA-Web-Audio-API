@@ -170,8 +170,7 @@ oscillator.frequency.value = 440; // low internal priority
 - browser processing power
 - time accuracy (JS clock vs WAAPI clock)
 - memory allocation + garbage collection
-- missing tools (i.e., frequency domain)
-- no interactions with SpeechSynthesis
+- missing tools (i.e., frequency domain, SpeechSynthesis integration)
 
 [I don't know who the Web Audio API is designed for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
 
