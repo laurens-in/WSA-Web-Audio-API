@@ -77,16 +77,100 @@ The Web Audio API is a **browser API** for playing and manipulating audio, which
 
 ---
 
-### Coding
+### Basics: the audio graph
+
+![[threads.png]]
 
 ---
 
-### Strange quirks?
+### Basics: the audio graph
 
-- node limitations
-- time accuracy
-- memory allocation
-- no interactions with SpeechSynthesis
+Source -> Effects -> Destination
+
+---
+
+### Sources: Oscillator
+
+```js
+// create web audio api context
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+// create Oscillator node
+const oscillator = audioCtx.createOscillator();
+
+oscillator.type = "square";
+oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
+oscillator.connect(ctx.destination);
+oscillator.start();
+```
+
+---
+
+### Sources: Samples
+
+* `AudioBuffer`: holds a loaded sample in memory, sticks around
+* `AudioBufferSourceNode`: plays the `AudioBuffer`, dies immediately after
+* [involves buffer format conversion](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Basic_concepts_behind_Web_Audio_API#planar_versus_interleaved_buffers)
+
+---
+
+### Sources: Samples
+
+```js
+// load all sounds
+let allSounds = [];
+
+const paths = ["path1.wav", "path2.wav"];
+const sounds = paths.map((sound) =>
+  fetch(sound)
+    .then((response) => response.arrayBuffer())
+    .then((buffer) => ctx.decodeAudioData(buffer))
+);
+
+Promise.all(sounds).then((buffers) => {
+  allSounds = buffers;
+});
+```
+
+---
+
+### Sources: Samples
+
+`AudioBuffer` (memory) vs `AudioBufferSourceNode` (playback)
+
+```js
+// play one sound back
+const track = ctx.createBufferSource();
+track.buffer = allSounds[0];
+track.connect(destination);
+track.start(ctx.currentTime);
+```
+
+---
+
+### Adjusting: AudioParams
+
+```js
+oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+oscillator.frequency.linearRampToValueAtTime(440, audioCtx.currentTime + 2);
+oscillator.frequency.value = 440; // low internal priority
+```
+
+* audio-rate (a-rate): happens for every individual sample frame
+* control-rate (k-rate): happens on each block of 128 frames
+
+---
+
+## Coding
+
+---
+
+### Strange quirks
+
+- browser processing power
+- time accuracy (JS clock vs WAAPI clock)
+- memory allocation + garbage collection
+- missing tools (i.e., frequency domain, SpeechSynthesis integration)
 
 [I don't know who the Web Audio API is designed for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
 
