@@ -17,6 +17,14 @@ const masterGain = ctx.createGain();
 // connect master gain to output
 masterGain.connect(ctx.destination);
 
+await ctx.audioWorklet.addModule("../worklet/foldback.js");
+const onePole = new AudioWorkletNode(ctx, "foldback-distortion-processor");
+onePole.connect(masterGain);
+const lfo = ctx.createOscillator();
+lfo.frequency.setValueAtTime(10, ctx.currentTime);
+// lfo.connect(onePole.parameters.get("threshold"));
+// lfo.start();
+
 // add slider to ui
 const $master = document.querySelector("#synth-master");
 const masterSection = createMasterSection(masterGain, ctx);
@@ -115,21 +123,25 @@ const voiceSections = instrument.voices.map((v, i) =>
 );
 voiceSections.forEach((el) => $fmContainer.appendChild(el));
 
-const playFmVoice = (voice, env, ctx) => {
-  // create nodes
+const startFmVoice = (voice, env, ctx) => {
+  // create carrier
   const carrier = ctx.createOscillator();
-  const amplitude = ctx.createGain();
-  const modulator = ctx.createOscillator();
-  const modAmp = ctx.createGain();
-  const envelope = createEnvelope(env, ctx);
-  // set values
   carrier.frequency.setValueAtTime(voice.freq, ctx.currentTime);
+  // create amplitude
+  const amplitude = ctx.createGain();
+  amplitude.gain.setValueAtTime(voice.amp, ctx.currentTime);
+  // create modulator index
+  const modulator = ctx.createOscillator();
   modulator.frequency.setValueAtTime(
     voice.modulator.index * voice.freq,
     ctx.currentTime
   );
-  amplitude.gain.setValueAtTime(voice.amp, ctx.currentTime);
+  // create modulator depth
+  const modAmp = ctx.createGain();
   modAmp.gain.setValueAtTime(voice.modulator.depth, ctx.currentTime);
+  // create envelope
+  const envelope = startEnvelope(env, ctx);
+
   // wire everything up
   modulator.connect(modAmp);
   modAmp.connect(carrier.detune);
@@ -155,6 +167,7 @@ const stopFmVoice = (voice, env, ctx) => {
     env.sustain,
     ctx.currentTime + buffer
   );
+  // release
   voice.refs.env.gain.linearRampToValueAtTime(0, release + buffer);
   voice.refs.freq.stop(release + buffer);
   voice.refs.modulator.index.stop(release + buffer);
@@ -162,7 +175,7 @@ const stopFmVoice = (voice, env, ctx) => {
 };
 
 // ramps that are triggered while other ramps are still going are appended to the queue, it still sometimes breaks
-const createEnvelope = (env, ctx) => {
+const startEnvelope = (env, ctx) => {
   const envelope = ctx.createGain();
   // attack
   envelope.gain.setValueAtTime(0, ctx.currentTime);
@@ -174,6 +187,14 @@ const createEnvelope = (env, ctx) => {
   );
   return envelope;
 };
+
+// const stopEnvelope = (envRef, release, ctx) => {
+//   const release = ctx.currentTime + env.release;
+//   envRef.gain.linearRampToValueAtTime(env.sustain, ctx.currentTime);
+//   // release
+//   envRef.gain.linearRampToValueAtTime(0, release);
+//   return null;
+// };
 
 const playBuffer = (buffer, destination, ctx) => {
   const track = ctx.createBufferSource();
@@ -188,10 +209,11 @@ const initializeKeyboard = () => {
     const voice = instrument.voices[i];
     document.addEventListener("keydown", (e) => {
       if (e.key === k && !voice.refs) {
-        voice.refs = playFmVoice(voice, instrument.envelope, ctx);
+        voice.refs = startFmVoice(voice, instrument.envelope, ctx);
       }
 
       if (e.key === k && voice.refs.dirty === false) {
+        // we drop our refs, so that they can be garbage-collected
         voice.refs = stopFmVoice(voice, instrument.envelope, ctx);
       }
     });

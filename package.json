@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/audioworklet": "^0.0.50",
     "vite": "^4.4.5"
   }
 }
