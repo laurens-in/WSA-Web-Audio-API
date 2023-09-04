@@ -11,5 +11,8 @@
   "devDependencies": {
     "@types/audioworklet": "^0.0.50",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "standardized-audio-context": "^25.3.55"
   }
 }
