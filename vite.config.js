@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, ROOT, "index.html"),
         solution: resolve(__dirname, ROOT, "solution/index.html"),
+        wip: resolve(__dirname, ROOT, "wip/index.html"),
       },
     },
   },

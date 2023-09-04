@@ -5,16 +5,20 @@
  */
 
 /**
+ * @typedef {Object} SliderConfigObject - The config object containing special configurations
+ * @property {number} [config.min=0] - min value of the slider
+ * @property {number} [config.max=100] - max value of the slider
+ * @property {number} [config.step=1] - step value of the slider
+ * @property {number} [config.initial=0] - initial value of the slider
+ * @property {number} [config.height=150] - height of the slider in pixels
+ */
+
+/**
  *
  * @param {string} name - The display name of the slider
  * @param {string} id - The unique ID of the slider
  * @param {eventCallback} callback - The eventListener callback
- * @param {Object} [config] - The config object containing special configurations
- * @param {number} [config.min=0] - min value of the slider
- * @param {number} [config.max=100] - max value of the slider
- * @param {number} [config.step=1] - step value of the slider
- * @param {number} [config.initial=0] - initial value of the slider
- * @param {number} [config.height=150] - height of the slider in pixels
+ * @param {SliderConfigObject} [config] - The config object containing special configurations
  * @returns {Element} - The slider element
  */
 
@@ -294,6 +298,8 @@ export const createMasterSection = (masterGain, ctx) => {
   const height = 100;
   const [sectionParent, sectionContent] = createSection("Master", "row");
 
+  // const effect = createNamedSlider("Effect", "effect-slider");
+
   const master = createNamedSlider(
     "Master",
     "master-slider",
@@ -338,4 +344,36 @@ export const createPadSection = (padConfigs) => {
   const buttons = pads.map((el) => el.firstElementChild);
 
   return [sectionParent, buttons];
+};
+
+/**
+ * Config object for a slider.
+ * @typedef {Object} SliderConfig
+ * @property {string} name - The sliders display name.
+ * @property {string} id - The sliders id.
+ * @property {eventCallback} callback - The callback if the slider is moved.
+ * @property {SliderConfigObject} config - The configuration object for the slider.
+ */
+
+/**
+ * Create a section with named sliders.
+ * @param {SliderConfig[]} sliderConfigs
+ * @returns {Element} The sections root element.
+ */
+
+export const createSliderSection = (sliderConfigs, name = "Slider Section") => {
+  const [sectionParent, sectionContent] = createSection(
+    name ?? "Slider Section",
+    "grid"
+  );
+
+  const sliders = sliderConfigs.map((config, i) =>
+    createNamedSlider(config.name, config.id, config.callback, config.config)
+  );
+
+  sliders.forEach((el) => {
+    sectionContent.appendChild(el);
+  });
+
+  return sectionParent;
 };
