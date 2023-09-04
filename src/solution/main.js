@@ -8,6 +8,7 @@ import kick from "../assets/sounds/kick.wav";
 import snare from "../assets/sounds/snare.wav";
 import ride from "../assets/sounds/ride.wav";
 import closedHat from "../assets/sounds/closedHat.wav";
+import { AudioContext, AudioWorkletNode } from "standardized-audio-context";
 
 const ctx = new AudioContext();
 // don't do this IRL
@@ -41,7 +42,7 @@ const masterSection = createSliderSection(
         foldbackDist.parameters
           .get("threshold")
           .linearRampToValueAtTime(v, ctx.currentTime + 0.02),
-      config: { min: 0, max: 1, step: 0.01, initial: 1 },
+      config: { min: 0.01, max: 1, step: 0.01, initial: 1 },
     },
     {
       name: "Master",

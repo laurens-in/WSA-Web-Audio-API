@@ -30,10 +30,11 @@ class FoldbackDistortionProcessor extends AudioWorkletProcessor {
 }
 
 const foldback = (input, threshold) => {
+  const makeUp = 1 / threshold;
   if (input > threshold || input < threshold * -1) {
     input = (threshold - (Math.abs(input) % threshold)) * Math.sign(input);
   }
-  return input;
+  return input * makeUp;
 };
 
 registerProcessor("foldback-distortion-processor", FoldbackDistortionProcessor);
