@@ -32,4 +32,6 @@ const $fmContainer = document.querySelector("#fm-section");
 
 // TODO load buffers and play them
 
+// TODO add AudioWorklet effect
+
 console.log("hi");
