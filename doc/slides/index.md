@@ -301,7 +301,7 @@ Take Away: You need a transport, you use a [library](https://github.com/felixroo
 ### AudioWorklet
 
 ```js
-class Passthrough extends AudioWorkletProcessor {
+class PassthroughProcessor extends AudioWorkletProcessor {
 
   process(inputs, outputs, parameters) {
     const input = inputs[0];
@@ -317,6 +317,8 @@ class Passthrough extends AudioWorkletProcessor {
     return true;  
   }
 }
+
+registerProcessor("passthrough-processor", PassthroughProcessor);
 ```
 
 ---
