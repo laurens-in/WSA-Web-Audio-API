@@ -8,6 +8,7 @@ import kick from "../assets/sounds/kick.wav";
 import snare from "../assets/sounds/snare.wav";
 import ride from "../assets/sounds/ride.wav";
 import closedHat from "../assets/sounds/closedHat.wav";
+import { AudioContext, AudioWorkletNode } from "standardized-audio-context";
 
 const ctx = new AudioContext();
 // don't do this IRL
