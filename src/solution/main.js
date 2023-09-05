@@ -186,17 +186,9 @@ const startFmVoice = (voice, env, destination, ctx) => {
 };
 
 const stopFmVoice = (voice, env, ctx) => {
-  const release = ctx.currentTime + env.release;
   // we need this to avoid clicks, but we shouldn't
-  const buffer = 0.05;
-  voice.refs.env.gain.linearRampToValueAtTime(
-    env.sustain,
-    ctx.currentTime + buffer
-  );
-  // release
-  voice.refs.env.gain.linearRampToValueAtTime(0, release + buffer);
-  voice.refs.freq.stop(release + buffer);
-  voice.refs.modulator.index.stop(release + buffer);
+  stopEnvelope(voice.refs.env, env, ctx);
+  voice.refs.modulator.index.stop(ctx.currentTime + env.release);
   return null;
 };
 
@@ -214,13 +206,13 @@ const startEnvelope = (env, ctx) => {
   return envelope;
 };
 
-// const stopEnvelope = (envRef, release, ctx) => {
-//   const release = ctx.currentTime + env.release;
-//   envRef.gain.linearRampToValueAtTime(env.sustain, ctx.currentTime);
-//   // release
-//   envRef.gain.linearRampToValueAtTime(0, release);
-//   return null;
-// };
+const stopEnvelope = (envRef, env, ctx) => {
+  // this prevents clicks don't ask me why
+  envRef.gain.linearRampToValueAtTime(env.sustain, ctx.currentTime);
+  // trigger release
+  envRef.gain.linearRampToValueAtTime(0, ctx.currentTime + env.release);
+  return null;
+};
 
 const playBuffer = (buffer, destination, ctx) => {
   const track = ctx.createBufferSource();
