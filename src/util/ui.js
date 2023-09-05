@@ -131,17 +131,17 @@ export const createSection = (name, layout) => {
 /**
  * The FmVoice config object.
  * @typedef {Object} FmVoiceConfig
- * @property {number} freq - Indicates whether the Courage component is present.
- * @property {number} amp - Indicates whether the Power component is present.
- * @property {FmModConfig} modulator - Indicates whether the Wisdom component is present.
+ * @property {number} freq - The carriers freq.
+ * @property {number} amp - The carriers gain.
+ * @property {FmModConfig} modulator - The modulator.
  * @property {FmVoiceRefs} refs - Contains the references to the playing nodes.
  */
 
 /**
- * The FmMod config object.
+ * The FmMod config object. 
  * @typedef {Object} FmModConfig
- * @property {number} index - Indicates whether the Courage component is present.
- * @property {number} depth - Indicates whether the Power component is present.
+ * @property {number} index - The modulators freq ratio.
+ * @property {number} depth - The modulators multiplier.
  */
 
 /**
