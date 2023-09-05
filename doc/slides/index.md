@@ -151,6 +151,7 @@ const ctx = new AudioContext();
 - is responsible for processing audio
 - provides the audio destination: `ctx.destination`
 - provides the current time: `ctx.currentTime`
+- can only be started by user-interaction!
 
 ---
 ### AudioNode
