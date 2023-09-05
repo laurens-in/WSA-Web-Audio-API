@@ -30,8 +30,6 @@ masterChain.connect(foldbackDist);
 
 // add slider to ui
 const $master = document.querySelector("#synth-master");
-// const masterSection = createMasterSection(masterGain, ctx);
-// $master.appendChild(masterSection);
 
 const masterSection = createSliderSection(
   [
