@@ -81,10 +81,9 @@ The Web Audio API is controversial in quite a few ways:
 - there are some fundamental problems (scheduling, buffer-size, fft etc.)
 	- some limits come from the browser
 	- some limits come from the spec
-- what is it? who is it for? 
+- what is it? [who is it for? ](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
 
 ---
-
 ### What it isn't...
 
 - collection of audio primitives (no `+`, no `*` etc.)
@@ -100,16 +99,21 @@ The Web Audio API is controversial in quite a few ways:
 ---
 ### Why should we care?
 
-- The WAAPI is a **browser API**, meaning browsers will continue to support it as long as it continues to be in the W3C spec. It will not change for the next 15 years. Backwards compatibility will always be guaranteed
-- **Third-party libraries**, like Tone.js can disappear, if their developers have no time to maintain them
+... why not just use Tone.js?
+
 ---
 ### Why should we care?
 
-- Every library is based on Web Audio API. If there's something not available to you in Tone.js, p5.sound, etc., these libraries include a way to add WAAPI functionality via custom nodes
-- Most libraries have a strong focus on traditional music, this isn't ideal for every use case
-- For small projects p5.js or Tone.js can be overkill
-- It is relatively simple and there are efforts to make [non-browser implementations](https://github.com/orottier/web-audio-api-rs)
-- Limitation can be good
+- WAAPI is a **browser API**, meaning browsers will continue to support it _FOREVER_. It will not change for the next 15 years. Backwards compatibility will always be guaranteed
+- **third-party libraries**, like Tone.js can disappear, if their developers have no time to maintain them
+---
+### Why should we care?
+
+- every library is based on Web Audio API -> if there's something not available to you in Tone.js, p5.sound, etc., these libraries include a way to add WAAPI functionality via custom nodes
+- most libraries have a strong focus on traditional music, this isn't ideal for every use case
+- for small projects p5.js or Tone.js can be overkill
+- it is relatively simple and there are efforts to make [non-browser implementations](https://github.com/orottier/web-audio-api-rs)
+- limitation can be good
 ---
 ### Basics: the audio graph
 
@@ -174,7 +178,6 @@ const ctx = new AudioContext();
 const oscillator = ctx.createOscillator();
 
 oscillator.type = "square";
-oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
 oscillator.connect(ctx.destination);
 oscillator.start();
 ```
@@ -191,7 +194,7 @@ oscillator.stop();
 oscillator.start();
 ```
 
-This isn't possible. Sources are single-use. They are cheap to create and should/can not be reused.  When they finish they can be garbage-collected, short-term garbage-collection is less expensive than long-term garbage-collection.
+This isn't possible. Sources are single-use. They are cheap to create and should/can not be reused.  When they finish playing they can be garbage-collected, short-term garbage-collection is less expensive than long-term garbage-collection.
 
 ---
 ### Sources: Samples
@@ -211,12 +214,12 @@ const paths = ["path1.wav", "path2.wav"];
 const soundPromises = paths.map((path) =>
   fetch(path)
     .then((response) => response.arrayBuffer())
-    .then((buffer) => ctx.decodeAudioData(buffer))
+    .then((buffer) => ctx.decodeAudioData(buffer)) // returns Promise<AudioBuffer>
 );
 
 // allows parallel I/O
 Promise.all(soundPromises).then((buffers) => {
-  samples = buffers;
+  samples = buffers; // array of AudioBuffers
 });
 ```
 
@@ -246,7 +249,7 @@ Is the base interface for adjustable values.
 ```js
 oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
 oscillator.frequency.linearRampToValueAtTime(440, audioCtx.currentTime + 2);
-oscillator.frequency.value = 440; // low internal priority
+oscillator.frequency.value = 440; // possible but low internal priority, overwritten by above
 ```
 
 * audio-rate (a-rate): happens for every individual sample frame
@@ -272,10 +275,37 @@ gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 3);
 const oscillator = ctx.createOscillator();
 const gain = ctx.createGain();
 gain.gain.setValueAtTime(0, ctx.currentTime);
-gain.gain.value = 0.2; // is possible but will always be overwritten by setValue...
 
 oscilator.connect(gain);
 gain.connect(ctx.destination);
+```
+
+---
+### Detour: Basic Operations
+
+```js
+// signals
+const a = ctx.createOscillator();
+const b = ctx.createOscillator();
+
+// addition: a + b
+const gain = ctx.createGain();
+a.connect(gain);
+b.connect(gain)
+
+// subtraction: a - b
+const gain = ctx.createGain();
+const invert = ctx.createGain();
+invert.gain.setValueAtTime(-1, ctx.currentTime);
+
+a.connect(gain);
+b.connect(inverter);
+inverter.connect(gain);
+
+// multiplication: a * b
+const gain = ctx.createGain();
+a.connect(gain);
+b.connect(gain.gain);
 ```
 
 ---
@@ -324,17 +354,14 @@ registerProcessor("passthrough-processor", PassthroughProcessor);
 ---
 ### AudioWorklet
 
-- replaced ScriptProcessorNode
+- replaced ScriptProcessorNode (which was very dumb)
 - is the low-level interface many have been waiting for
 - is where we can write custom DSP code
 - is still limited in some ways, e.g. block size
 
+[some people are going crazy with it.](https://github.com/sebpiq/WebPd)
+
 ---
 ## Coding Time
-
----
-### Additional resources
-
-[I don't know who the Web Audio API is designed for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/)
 
 ---
