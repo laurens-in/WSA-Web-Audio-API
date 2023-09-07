@@ -216,7 +216,7 @@ export const createFmVoiceSection = (voice, id, ctx) => {
           ctx.currentTime
         );
     },
-    { min: 0, max: 1, initial: voice.modulator.depth, step: 0.01, height }
+    { min: 0, max: 1, initial: voice.modulator.depth / 500, step: 0.01, height }
   );
 
   [freq, amp, modIndex, modDepth].forEach((el) =>
