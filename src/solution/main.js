@@ -68,7 +68,7 @@ const instrument = {
       amp: 0.5,
       modulator: {
         index: 0.5,
-        depth: 1,
+        depth: 500,
       },
       refs: undefined,
     },
@@ -77,7 +77,7 @@ const instrument = {
       amp: 0.5,
       modulator: {
         index: 0.125,
-        depth: 0.6,
+        depth: 300,
       },
       refs: undefined,
     },
@@ -86,7 +86,7 @@ const instrument = {
       amp: 0.5,
       modulator: {
         index: 0.2,
-        depth: 0.7,
+        depth: 350,
       },
       refs: undefined,
     },
@@ -95,7 +95,7 @@ const instrument = {
       amp: 0.5,
       modulator: {
         index: 0.66,
-        depth: 0.9,
+        depth: 450,
       },
       refs: undefined,
     },
